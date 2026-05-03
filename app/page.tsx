@@ -65,14 +65,11 @@ export default function Home() {
         textAlign: 'center',
         borderBottom: '1px solid #1f2937',
       }}>
-        <h1 style={{
-          fontSize: '48px', fontWeight: '900', marginBottom: '8px',
-          background: 'linear-gradient(90deg, #00ff87, #3b82f6)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>⚡ SportsLive</h1>
-        <p style={{ color: '#9ca3af', fontSize: '16px', marginBottom: '32px' }}>
-          Resultados de fútbol en tiempo real — Todas las ligas del mundo
-        </p>
+       <h1 style={{
+  fontSize: '48px', fontWeight: '900', marginBottom: '8px',
+  background: 'linear-gradient(90deg, #00ff87, #3b82f6)',
+  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+}}>⚡ SportsLive</h1>
 
         {/* Stats */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '48px' }}>

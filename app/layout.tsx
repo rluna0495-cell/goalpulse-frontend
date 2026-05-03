@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SportsLive - Scores en Tiempo Real',
-  description: 'Resultados en vivo de Fútbol, Tenis, Baloncesto y Béisbol',
+  title: 'GoalPulse - Fútbol en Tiempo Real',
+  description: 'Resultados de fútbol en vivo de todas las ligas del mundo',
 };
 
 export default function RootLayout({

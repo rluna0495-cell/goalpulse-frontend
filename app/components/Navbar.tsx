@@ -2,12 +2,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const navItems = [
-  { label: '⚽ Fútbol', href: '/football' },
-  { label: '🏆 Ligas', href: '/football' },
-  { label: '📊 Estadísticas', href: '/football' },
-];
-
 export default function Navbar() {
   const pathname = usePathname();
 
@@ -34,13 +28,16 @@ export default function Navbar() {
             background: 'linear-gradient(90deg, #00ff87, #3b82f6)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>
-            ⚡ SportsLive
+            ⚡ GoalPulse
           </span>
         </Link>
 
         <div style={{ display: 'flex', gap: '8px' }}>
-          {navItems.map((item) => (
-            <Link key={item.href + item.label} href={item.href} style={{ textDecoration: 'none' }}>
+          {[
+            { label: '⚽ En Vivo', href: '/' },
+            { label: '🏆 Ligas', href: '/football' },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
               <span style={{
                 padding: '8px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: '500',
                 color: pathname === item.href ? '#00ff87' : '#9ca3af',
@@ -54,10 +51,12 @@ export default function Navbar() {
         </div>
 
         <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
           padding: '8px 16px', borderRadius: '8px',
-          backgroundColor: '#1a2235', color: '#9ca3af', fontSize: '13px',
+          backgroundColor: '#1a2235', color: '#dc2626', fontSize: '13px',
         }}>
-          🔴 En vivo
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#dc2626', display: 'inline-block' }}></span>
+          En vivo
         </div>
       </div>
     </nav>
