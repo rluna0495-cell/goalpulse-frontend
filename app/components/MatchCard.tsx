@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 
 interface Team {
   name: string;
@@ -11,6 +12,7 @@ interface Goals {
 }
 
 interface MatchCardProps {
+  id?: number;
   homeTeam: Team;
   awayTeam: Team;
   goals?: Goals;
@@ -19,18 +21,21 @@ interface MatchCardProps {
   time?: string;
 }
 
-export default function MatchCard({ homeTeam, awayTeam, goals, status, league, time }: MatchCardProps) {
+export default function MatchCard({ id, homeTeam, awayTeam, goals, status, league, time }: MatchCardProps) {
+  const router = useRouter();
   const isLive = ['1H', '2H', 'HT', 'ET', 'P', 'LIVE'].includes(status);
 
   return (
-    <div style={{
-      backgroundColor: '#1a2235',
-      borderRadius: '12px',
-      padding: '14px 16px',
-      border: isLive ? '1px solid #00ff87' : '1px solid #1f2937',
-      cursor: 'pointer',
-      transition: 'all 0.2s',
-    }}>
+    <div
+      onClick={() => id && router.push(`/match/${id}`)}
+      style={{
+        backgroundColor: '#1a2235',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        border: isLive ? '1px solid #00ff87' : '1px solid #1f2937',
+        cursor: id ? 'pointer' : 'default',
+        transition: 'all 0.2s',
+      }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <span style={{ fontSize: '11px', color: '#9ca3af', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>
           {league}
@@ -45,7 +50,6 @@ export default function MatchCard({ homeTeam, awayTeam, goals, status, league, t
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Equipo local */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
           <img src={homeTeam.logo} alt={homeTeam.name}
             style={{ width: '28px', height: '28px', objectFit: 'contain', flexShrink: 0 }}
@@ -56,11 +60,9 @@ export default function MatchCard({ homeTeam, awayTeam, goals, status, league, t
           </span>
         </div>
 
-        {/* Marcador */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '6px 12px', backgroundColor: '#0a0e1a', borderRadius: '8px',
-          flexShrink: 0,
+          padding: '6px 12px', backgroundColor: '#0a0e1a', borderRadius: '8px', flexShrink: 0,
         }}>
           <span style={{ fontSize: '18px', fontWeight: 'bold', color: isLive ? '#00ff87' : 'white', minWidth: '16px', textAlign: 'center' }}>
             {goals?.home ?? '-'}
@@ -71,7 +73,6 @@ export default function MatchCard({ homeTeam, awayTeam, goals, status, league, t
           </span>
         </div>
 
-        {/* Equipo visitante */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
           <span style={{ fontSize: '14px', fontWeight: '600', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right' }}>
             {awayTeam.name}
