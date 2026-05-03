@@ -34,9 +34,10 @@ export default function Navbar() {
 
         <div style={{ display: 'flex', gap: '8px' }}>
           {[
-            { label: '⚽ En Vivo', href: '/' },
-            { label: '🏆 Ligas', href: '/football' },
-          ].map((item) => (
+  { label: '⚽ En Vivo', href: '/' },
+  { label: '🏆 Ligas', href: '/football' },
+  { label: '📊 Standings', href: '/standings' },
+].map((item) => (
             <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
               <span style={{
                 padding: '8px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: '500',
