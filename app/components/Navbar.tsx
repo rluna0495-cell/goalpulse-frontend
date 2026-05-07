@@ -34,10 +34,10 @@ export default function Navbar() {
 
         <div style={{ display: 'flex', gap: '8px' }}>
           {[
-  { label: '⚽ En Vivo', href: '/' },
-  { label: '🏆 Ligas', href: '/football' },
-  { label: '📊 Standings', href: '/standings' },
-].map((item) => (
+            { label: '⚽ En Vivo', href: '/' },
+            { label: '🏆 Ligas', href: '/football' },
+            { label: '📊 Standings', href: '/standings' },
+          ].map((item) => (
             <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
               <span style={{
                 padding: '8px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: '500',
@@ -55,8 +55,13 @@ export default function Navbar() {
           display: 'flex', alignItems: 'center', gap: '8px',
           padding: '8px 16px', borderRadius: '8px',
           backgroundColor: '#1a2235', color: '#dc2626', fontSize: '13px',
+          fontWeight: 'bold'
         }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#dc2626', display: 'inline-block' }}></span>
+          <span style={{ 
+            width: '8px', height: '8px', borderRadius: '50%', 
+            backgroundColor: '#dc2626', display: 'inline-block',
+            animation: 'pulse 2s infinite' 
+          }}></span>
           En vivo
         </div>
       </div>
