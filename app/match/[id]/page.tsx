@@ -1,226 +1,88 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Navbar from '../../components/Navbar';
-import { footballApi } from '../../lib/api';
+import { footballApi } from '@/app/lib/api';
+import Navbar from '@/app/components/Navbar';
 
-type TabType = 'summary' | 'stats' | 'lineups' | 'h2h';
-
-export default function MatchDetailPage() {
+export default function MatchDetail() {
   const { id } = useParams();
   const [match, setMatch] = useState<any>(null);
-  const [stats, setStats] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>('summary');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const fetchDetails = async () => {
       try {
-        setLoading(true);
-        // En el futuro aquí llamaremos a la API real. 
-        // Por ahora simulamos la carga para el diseño.
-        const res = await footballApi.getMatch(Number(id));
-        setMatch(res.data.data?.[0] || MOCK_MATCH);
-        const statsRes = await footballApi.getMatchStats(Number(id));
-        setStats(statsRes.data.data || MOCK_STATS);
-      } catch (error) {
-        console.error(error);
-        setMatch(MOCK_MATCH);
-        setStats(MOCK_STATS);
+        const res = await footballApi.getMatchDetails(id as string);
+        // API-Football devuelve los datos en res.data.data[0]
+        setMatch(res.data.data[0] || res.data[0]);
+      } catch (err) {
+        console.error("Error cargando detalles:", err);
       } finally {
         setLoading(false);
       }
     };
-    loadData();
+    if (id) fetchDetails();
   }, [id]);
 
-  if (loading) return <div style={{ color: 'white', textAlign: 'center', padding: '100px' }}>Cargando detalles...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-[#0a0e1a] text-white flex items-center justify-center">
+      <div className="text-xl font-bold animate-pulse">Sincronizando estadísticas...</div>
+    </div>
+  );
+
+  if (!match) return (
+    <div className="min-h-screen bg-[#0a0e1a] text-white flex items-center justify-center">
+      <div className="text-xl">No se encontraron datos de este partido.</div>
+    </div>
+  );
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: '#0a0e1a', color: 'white' }}>
+    <main className="min-h-screen bg-[#0a0e1a] pb-10">
       <Navbar />
-      
-      {/* Marcador Superior (Scoreboard) */}
-      <div style={{ 
-        background: 'linear-gradient(to bottom, #1a2235, #0a0e1a)', 
-        padding: '40px 20px', borderBottom: '1px solid #1f2937', textAlign: 'center' 
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ flex: 1 }}>
-            <img src={match.teams.home.logo} style={{ width: '80px', marginBottom: '12px' }} alt="" />
-            <h2 style={{ fontSize: '20px' }}>{match.teams.home.name}</h2>
-          </div>
-          
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', fontWeight: '900', letterSpacing: '4px' }}>
-              {match.goals.home} : {match.goals.away}
-            </div>
-            <span style={{ color: '#00ff87', fontWeight: 'bold', fontSize: '14px' }}>{match.fixture.status.elapsed}'</span>
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <img src={match.teams.away.logo} style={{ width: '80px', marginBottom: '12px' }} alt="" />
-            <h2 style={{ fontSize: '20px' }}>{match.teams.away.name}</h2>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
-        {/* Navegación de Pestañas */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #1f2937', marginBottom: '30px', gap: '24px' }}>
-          {[
-            { id: 'summary', label: 'RESUMEN' },
-            { id: 'stats', label: 'ESTADÍSTICAS' },
-            { id: 'lineups', label: 'ALINEACIONES' },
-            { id: 'h2h', label: 'H2H' }
-          ].map(tab => (
-            <button 
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              style={{
-                padding: '12px 0', border: 'none', background: 'none', color: activeTab === tab.id ? '#00ff87' : '#9ca3af',
-                fontWeight: 'bold', cursor: 'pointer', borderBottom: activeTab === tab.id ? '2px solid #00ff87' : 'none',
-                fontSize: '13px'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+      <div className="max-w-4xl mx-auto p-4 mt-8">
+        
+        {/* Cabecera de Liga */}
+        <div className="flex items-center gap-3 mb-6 bg-[#1a2235] p-3 rounded-lg border border-[#1f2937]">
+          <img src={match.league.logo} className="w-6 h-6 object-contain" alt="" />
+          <span className="text-white font-semibold">{match.league.name}</span>
+          <span className="text-[#9ca3af]">| {match.league.round}</span>
         </div>
 
-        {/* Contenido de Pestañas */}
-        {activeTab === 'stats' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {stats[0]?.statistics.map((s: any, idx: number) => {
-              const homeVal = s.value || 0;
-              const awayVal = stats[1].statistics[idx].value || 0;
-              const total = (typeof homeVal === 'number' && typeof awayVal === 'number') ? homeVal + awayVal : 1;
-              const homePct = typeof homeVal === 'string' ? parseInt(homeVal) : (homeVal / total) * 100;
-
-              return (
-                <div key={s.type} style={{ marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
-                    <span>{homeVal}</span>
-                    <span style={{ color: '#9ca3af', textTransform: 'uppercase', fontSize: '12px' }}>{s.type}</span>
-                    <span>{awayVal}</span>
-                  </div>
-                  <div style={{ display: 'flex', height: '6px', backgroundColor: '#1a2235', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ width: `${homePct}%`, backgroundColor: '#00ff87', transition: 'width 0.5s' }}></div>
-                    <div style={{ flex: 1, backgroundColor: '#3b82f6', transition: 'width 0.5s' }}></div>
-                  </div>
-                </div>
-              );
-            })}
+        {/* Marcador Principal */}
+        <div className="bg-gradient-to-b from-[#1a2235] to-[#0a0e1a] rounded-3xl p-10 flex justify-between items-center border border-[#1f2937] shadow-2xl">
+          <div className="text-center flex-1">
+            <img src={match.teams.home.logo} className="w-24 h-24 mx-auto mb-4 object-contain" alt="" />
+            <h2 className="text-xl font-bold text-white">{match.teams.home.name}</h2>
           </div>
-        )}
 
-        {activeTab === 'summary' && (
-          <div style={{ backgroundColor: '#1a2235', borderRadius: '12px', padding: '20px' }}>
-            <h3 style={{ fontSize: '16px', marginBottom: '20px', color: '#9ca3af' }}>EVENTOS PRINCIPALES</h3>
-            {/* Aquí mapearíamos match.events de la API */}
-            <div style={{ textAlign: 'center', color: '#4b5563', padding: '40px' }}>
-              Visualización de goles, tarjetas y sustituciones cronológicas...
+          <div className="text-center px-8">
+            <div className="text-6xl font-black text-[#00ff87] tracking-tighter">
+              {match.goals.home} - {match.goals.away}
+            </div>
+            <div className="inline-block px-4 py-1 bg-[#ff4d4d] text-white text-xs font-bold rounded-full mt-4 animate-pulse">
+              {match.fixture.status.short === 'FT' ? 'FINALIZADO' : `${match.fixture.status.elapsed}'`}
             </div>
           </div>
-        )}
 
-        {activeTab === 'h2h' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ backgroundColor: '#1a2235', padding: '20px', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '14px', color: '#00ff87', marginBottom: '15px' }}>ENFRENTAMIENTOS RECIENTES</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                <tbody>
-                  {[1, 2, 3].map(i => (
-                    <tr key={i} style={{ borderBottom: '1px solid #0a0e1a' }}>
-                      <td style={{ padding: '12px 0', color: '#9ca3af' }}>12.02.24</td>
-                      <td style={{ textAlign: 'right' }}>Real Madrid</td>
-                      <td style={{ textAlign: 'center', fontWeight: 'bold', color: '#00ff87', padding: '0 10px' }}>2 - 1</td>
-                      <td>Barcelona</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div style={{ backgroundColor: '#1a2235', padding: '20px', borderRadius: '12px' }}>
-                <h4 style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px' }}>FORMA LOCAL</h4>
-                <div style={{ display: 'flex', gap: '5px' }}>
-                  {['W', 'W', 'D', 'L', 'W'].map((v, i) => (
-                    <span key={i} style={{ 
-                      width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', 
-                      justifyContent: 'center', fontSize: '12px', fontWeight: 'bold',
-                      backgroundColor: v === 'W' ? '#059669' : v === 'L' ? '#dc2626' : '#4b5563'
-                    }}>{v}</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ backgroundColor: '#1a2235', padding: '20px', borderRadius: '12px' }}>
-                <h4 style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '10px' }}>FORMA VISITANTE</h4>
-                <div style={{ display: 'flex', gap: '5px' }}>
-                  {['L', 'W', 'W', 'W', 'D'].map((v, i) => (
-                    <span key={i} style={{ 
-                      width: '24px', height: '24px', borderRadius: '4px', display: 'flex', alignItems: 'center', 
-                      justifyContent: 'center', fontSize: '12px', fontWeight: 'bold',
-                      backgroundColor: v === 'W' ? '#059669' : v === 'L' ? '#dc2626' : '#4b5563'
-                    }}>{v}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="text-center flex-1">
+            <img src={match.teams.away.logo} className="w-24 h-24 mx-auto mb-4 object-contain" alt="" />
+            <h2 className="text-xl font-bold text-white">{match.teams.away.name}</h2>
           </div>
-        )}
+        </div>
 
-        {activeTab === 'lineups' && (
-          <div style={{ backgroundColor: '#1a2235', borderRadius: '12px', padding: '20px', textAlign: 'center' }}>
-             <div style={{ 
-               height: '400px', width: '100%', backgroundImage: 'url(https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=500)',
-               backgroundSize: 'cover', borderRadius: '8px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'
-             }}>
-               <div style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: '20px', borderRadius: '12px' }}>
-                  <p style={{ fontWeight: 'bold' }}>CAMPO TÁCTICO</p>
-                  <p style={{ fontSize: '12px', color: '#9ca3af' }}>Alineaciones 4-3-3 vs 4-4-2</p>
-               </div>
-             </div>
-          </div>
-        )}
+        {/* Información Extra */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+           <div className="bg-[#1a2235] p-6 rounded-2xl border border-[#1f2937]">
+              <h3 className="text-[#00ff87] font-bold mb-4 uppercase text-sm tracking-wider">Estadio</h3>
+              <p className="text-white text-lg">{match.fixture.venue.name}</p>
+              <p className="text-[#9ca3af]">{match.fixture.venue.city}</p>
+           </div>
+           <div className="bg-[#1a2235] p-6 rounded-2xl border border-[#1f2937]">
+              <h3 className="text-[#00ff87] font-bold mb-4 uppercase text-sm tracking-wider">Árbitro</h3>
+              <p className="text-white text-lg">{match.fixture.referee || 'No asignado'}</p>
+           </div>
+        </div>
       </div>
     </main>
   );
 }
-
-// --- MOCK DATA PARA PRUEBAS DE DISEÑO ---
-const MOCK_MATCH = {
-  fixture: { id: 1, status: { short: 'LIVE', elapsed: 72 }, date: new Date().toISOString() },
-  teams: {
-    home: { name: 'Real Madrid', logo: 'https://media.api-sports.io/football/teams/541.png' },
-    away: { name: 'Barcelona', logo: 'https://media.api-sports.io/football/teams/529.png' }
-  },
-  goals: { home: 3, away: 2 },
-  league: { name: 'La Liga', country: 'España' }
-};
-
-const MOCK_STATS = [
-  {
-    team: { id: 541, name: 'Real Madrid' },
-    statistics: [
-      { type: 'Ball Possession', value: '45%' },
-      { type: 'Total Shots', value: 14 },
-      { type: 'Shots on Goal', value: 6 },
-      { type: 'Corner Kicks', value: 5 },
-      { type: 'Fouls', value: 12 },
-      { type: 'Yellow Cards', value: 2 },
-    ]
-  },
-  {
-    team: { id: 529, name: 'Barcelona' },
-    statistics: [
-      { type: 'Ball Possession', value: '55%' },
-      { type: 'Total Shots', value: 11 },
-      { type: 'Shots on Goal', value: 4 },
-      { type: 'Corner Kicks', value: 8 },
-      { type: 'Fouls', value: 15 },
-      { type: 'Yellow Cards', value: 3 },
-    ]
-  }
-];
