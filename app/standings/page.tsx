@@ -1,75 +1,79 @@
 'use client';
-import { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import { footballApi } from '../lib/api';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { footballApi } from '@/app/lib/api';
+import Navbar from '@/app/components/Navbar';
 
-export default function StandingsPage() {
+function StandingsContent() {
+  const searchParams = useSearchParams();
+  const leagueId = searchParams.get('league') || '39'; // Premier por defecto
   const [standings, setStandings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Por defecto cargamos LaLiga (140) temporada 2023 para pruebas
-    loadStandings(140);
-  }, []);
-
-  const loadStandings = async (leagueId: number) => {
-    try {
-      setLoading(true);
-      const res = await footballApi.getStandings(leagueId, 2023);
-      const data = res.data.data?.[0]?.league?.standings?.[0] || [];
-      setStandings(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchStandings = async () => {
+      try {
+        setLoading(true);
+        const res = await footballApi.getStandings(Number(leagueId));
+        setStandings(res.data.data[0]?.league?.standings[0] || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStandings();
+  }, [leagueId]);
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: '#0a0e1a', color: 'white' }}>
-      <Navbar />
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 24px' }}>
-        <h1 style={{ marginBottom: '24px' }}>📊 Tabla de Posiciones</h1>
-        
-        <div style={{ backgroundColor: '#1a2235', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#111827', color: '#9ca3af', fontSize: '12px' }}>
-                <th style={{ padding: '12px' }}>#</th>
-                <th style={{ padding: '12px' }}>Equipo</th>
-                <th style={{ padding: '12px' }}>PJ</th>
-                <th style={{ padding: '12px' }}>G</th>
-                <th style={{ padding: '12px' }}>E</th>
-                <th style={{ padding: '12px' }}>P</th>
-                <th style={{ padding: '12px' }}>GF:GC</th>
-                <th style={{ padding: '12px', fontWeight: 'bold', color: '#00ff87' }}>PTS</th>
+    <div className="max-w-5xl mx-auto p-4 mt-6">
+      <h1 className="text-white text-2xl font-bold mb-6">Tabla de Posiciones</h1>
+      {loading ? (
+        <div className="text-white animate-pulse">Cargando tabla...</div>
+      ) : (
+        <div className="bg-[#1a2235] rounded-xl border border-[#1f2937] overflow-hidden">
+          <table className="w-full text-left text-[#9ca3af]">
+            <thead className="bg-[#0f172a] text-xs uppercase font-bold text-[#00ff87]">
+              <tr>
+                <th className="p-4">Pos</th>
+                <th className="p-4">Equipo</th>
+                <th className="p-4 text-center">PJ</th>
+                <th className="p-4 text-center">G</th>
+                <th className="p-4 text-center">E</th>
+                <th className="p-4 text-center">P</th>
+                <th className="p-4 text-center text-white">PTS</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-[#1f2937]">
               {standings.map((team: any) => (
-                <tr key={team.team.id} style={{ borderBottom: '1px solid #1f2937' }}>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>{team.rank}</td>
-                  <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <img src={team.team.logo} style={{ width: '20px' }} alt="" />
-                    <span style={{ fontSize: '14px', fontWeight: '500' }}>{team.team.name}</span>
+                <tr key={team.team.id} className="hover:bg-[#242f47] transition-colors">
+                  <td className="p-4 font-bold">{team.rank}</td>
+                  <td className="p-4 flex items-center gap-3">
+                    <img src={team.team.logo} className="w-6 h-6 object-contain" alt="" />
+                    <span className="text-white font-medium">{team.team.name}</span>
                   </td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>{team.all.played}</td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>{team.all.win}</td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>{team.all.draw}</td>
-                  <td style={{ padding: '12px', fontSize: '14px' }}>{team.all.lose}</td>
-                  <td style={{ padding: '12px', fontSize: '14px', color: '#9ca3af' }}>
-                    {team.all.goals.for}:{team.all.goals.against}
-                  </td>
-                  <td style={{ padding: '12px', fontSize: '15px', fontWeight: 'bold', color: '#00ff87' }}>
-                    {team.points}
-                  </td>
+                  <td className="p-4 text-center">{team.all.played}</td>
+                  <td className="p-4 text-center">{team.all.win}</td>
+                  <td className="p-4 text-center">{team.all.draw}</td>
+                  <td className="p-4 text-center">{team.all.lose}</td>
+                  <td className="p-4 text-center text-[#00ff87] font-black">{team.points}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {loading && <p style={{ textAlign: 'center', padding: '20px' }}>Cargando tabla...</p>}
         </div>
-      </div>
+      )}
+    </div>
+  );
+}
+
+export default function StandingsPage() {
+  return (
+    <main className="min-h-screen bg-[#0a0e1a]">
+      <Navbar />
+      <Suspense fallback={<div className="text-white p-10 text-center">Cargando aplicación...</div>}>
+        <StandingsContent />
+      </Suspense>
     </main>
   );
 }
