@@ -1,56 +1,59 @@
 'use client';
-
-const COUNTRIES = [
-  { name: 'España', flag: '🇪🇸', leagues: ['LaLiga', 'Segunda División', 'Copa del Rey'] },
-  { name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', leagues: ['Premier League', 'Championship', 'FA Cup'] },
-  { name: 'Italia', flag: '🇮🇹', leagues: ['Serie A', 'Serie B', 'Coppa Italia'] },
-  { name: 'Alemania', flag: '🇩🇪', leagues: ['Bundesliga', '2. Bundesliga'] },
-  { name: 'Colombia', flag: '🇨🇴', leagues: ['Primera A', 'Copa Colombia'] },
-  { name: 'Argentina', flag: '🇦🇷', leagues: ['Liga Profesional', 'Copa Argentina'] },
-  { name: 'Brasil', flag: '🇧🇷', leagues: ['Brasileirao Seria A', 'Copa do Brasil'] },
-  { name: 'México', flag: '🇲🇽', leagues: ['Liga MX', 'Expansión MX'] },
-];
+import { useState, useEffect } from 'react';
+import { footballApi } from '@/app/lib/api';
+import { useApp } from '../context/AppContext';
 
 export default function Sidebar() {
-  return (
-    <aside style={{ width: '260px', flexShrink: 0, display: 'none', '@media (min-width: 1024px)': { display: 'block' } } as any}>
-      <div style={{ backgroundColor: '#1a2235', borderRadius: '12px', padding: '20px', position: 'sticky', top: '84px', border: '1px solid #1f2937' }}>
-        <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '11px', color: '#4b5563', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' }}>
-            Mis Ligas ⭐
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ color: '#00ff87', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Champions League</div>
-            <div style={{ color: '#e5e7eb', fontSize: '13px', cursor: 'pointer' }}>Premier League</div>
-            <div style={{ color: '#e5e7eb', fontSize: '13px', cursor: 'pointer' }}>LaLiga</div>
-          </div>
-        </div>
+  const [countries, setCountries] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
+  const { t } = useApp();
 
-        <div>
-          <h3 style={{ fontSize: '11px', color: '#4b5563', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: '800' }}>
-            Países
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {COUNTRIES.map((country) => (
-              <details key={country.name} style={{ width: '100%' }}>
-                <summary style={{ 
-                  listStyle: 'none', padding: '8px 0', color: '#9ca3af', fontSize: '13px', 
-                  cursor: 'pointer', display: 'flex', justifyContent: 'space-between'
-                }}>
-                  <span>{country.flag} {country.name}</span>
-                  <span style={{ fontSize: '10px opacity: 0.5' }}>▼</span>
-                </summary>
-                <div style={{ paddingLeft: '20px', paddingBottom: '8px' }}>
-                  {country.leagues.map(league => (
-                    <div key={league} style={{ color: '#6b7280', fontSize: '12px', padding: '4px 0', cursor: 'pointer' }}>
-                      {league}
-                    </div>
-                  ))}
-                </div>
-              </details>
-            ))}
-          </div>
-        </div>
+  useEffect(() => {
+    // Aquí traeremos la lista de países y ligas
+    const loadLeagues = async () => {
+      try {
+        const res = await footballApi.getLeagues();
+        // Agrupamos por país para que se vea ordenado
+        setCountries(res.data.data || []);
+      } catch (e) { console.error("Error cargando ligas", e); }
+    };
+    loadLeagues();
+  }, []);
+
+  const filteredCountries = countries.filter(c => 
+    c.country.name.toLowerCase().includes(search.toLowerCase())
+  ).slice(0, 50); // Limitamos para no saturar la vista
+
+  return (
+    <aside className="w-64 bg-[#1a2235] h-screen overflow-y-auto p-4 border-r border-gray-800 hidden md:block">
+      <div className="mb-6">
+        <input 
+          type="text" 
+          placeholder="Buscar país o liga..." 
+          className="w-full bg-[#0a0e1a] border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-[#00ff87] outline-none"
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest">{t('Principales')}</h3>
+        <ul className="space-y-2">
+          {['Champions League', 'Europa League', 'Premier League', 'La Liga', 'Serie A'].map(top => (
+            <li key={top} className="text-sm hover:text-[#00ff87] cursor-pointer flex items-center gap-2">
+              <span className="w-2 h-2 bg-[#00ff87] rounded-full"></span> {top}
+            </li>
+          ))}
+        </ul>
+
+        <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-6">{t('Países')}</h3>
+        <ul className="space-y-2">
+          {filteredCountries.map((item: any) => (
+            <li key={item.league.id} className="text-sm py-1 hover:bg-[#252f4a] px-2 rounded cursor-pointer flex items-center gap-2">
+              <img src={item.country.flag} alt="" className="w-4 h-3 object-cover rounded-sm" />
+              <span className="truncate">{item.country.name}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
   );
