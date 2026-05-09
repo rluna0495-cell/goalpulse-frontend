@@ -18,19 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${inter.className} bg-[#0a0e1a] text-white antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         <AppProvider>
-          {/* Contenedor principal que ocupa el 100% de la altura de la pantalla */}
           <div className="flex flex-col h-screen w-full overflow-hidden">
-            
-            {/* Barra de navegación superior */}
             <Navbar />
-
-            {/* Contenedor del contenido (aquí es donde vivirán las 3 columnas) */}
             <div className="flex-1 w-full overflow-hidden">
               {children}
             </div>
-            
           </div>
         </AppProvider>
       </body>

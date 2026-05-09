@@ -23,66 +23,50 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    fetchMatches(view);
-  }, [view]);
+  useEffect(() => { fetchMatches(view); }, [view]);
 
   return (
-    <div className="flex h-screen bg-[#0a0e1a] overflow-hidden">
+    <div className="flex h-full w-full bg-[#0a0e1a]">
       
-      {/* 1. COLUMNA IZQUIERDA: Sidebar fijo (250px aprox) */}
-      <aside className="w-64 border-r border-gray-800 overflow-y-auto hidden md:block">
+      {/* COLUMNA 1: SIDEBAR (ANCHO FIJO 260px) */}
+      <aside className="w-[260px] border-r border-gray-800 overflow-y-auto bg-[#0f1423] shrink-0">
         <Sidebar />
       </aside>
 
-      {/* 2. COLUMNA CENTRAL: Resultados (Toma el resto del espacio) */}
-      <main className="flex-1 overflow-y-auto border-r border-gray-800">
-        <header className="sticky top-0 z-10 bg-[#0a0e1a]/80 backdrop-blur-md p-4 border-b border-gray-800">
-          <div className="flex gap-6">
-            <button 
-              onClick={() => setView('live')}
-              className={`text-xs font-black uppercase tracking-tighter transition ${view === 'live' ? 'text-[#00ff87] border-b-2 border-[#00ff87]' : 'text-gray-500'}`}
-            >
+      {/* COLUMNA 2: CENTRO (CRECE PARA OCUPAR ESPACIO) */}
+      <main className="flex-1 flex flex-col min-w-0 border-r border-gray-800">
+        <header className="p-4 border-b border-gray-800 bg-[#0a0e1a]/80 backdrop-blur-md">
+          <div className="flex gap-4">
+            <button onClick={() => setView('live')} className={`px-4 py-2 rounded-lg text-xs font-bold ${view === 'live' ? 'bg-[#00ff87] text-black' : 'bg-gray-800 text-gray-400'}`}>
               {t('live')}
             </button>
-            <button 
-              onClick={() => setView('today')}
-              className={`text-xs font-black uppercase tracking-tighter transition ${view === 'today' ? 'text-[#00ff87] border-b-2 border-[#00ff87]' : 'text-gray-500'}`}
-            >
+            <button onClick={() => setView('today')} className={`px-4 py-2 rounded-lg text-xs font-bold ${view === 'today' ? 'bg-[#00ff87] text-black' : 'bg-gray-800 text-gray-400'}`}>
               {t('today')}
             </button>
           </div>
         </header>
 
-        <div className="p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {loading ? (
-            <p className="text-center text-gray-500 animate-pulse mt-10">Cargando partidos...</p>
+            <p className="text-center text-gray-500 mt-10">Cargando...</p>
           ) : matches.length > 0 ? (
             matches.map((m: any) => (
-              <MatchCard 
-                key={m.fixture.id}
-                id={m.fixture.id}
-                homeTeam={m.teams.home}
-                awayTeam={m.teams.away}
-                goals={m.goals}
-                status={m.fixture.status.short}
-                league={m.league.name}
-                time={m.fixture.status.elapsed}
-              />
+              <MatchCard key={m.fixture.id} id={m.fixture.id} homeTeam={m.teams.home} awayTeam={m.teams.away} goals={m.goals} status={m.fixture.status.short} league={m.league.name} time={m.fixture.status.elapsed} />
             ))
           ) : (
-            <p className="text-center text-gray-500 mt-10">No hay partidos en este momento.</p>
-          ) /* */}
+            <p className="text-center text-gray-500 mt-20">No hay partidos.</p>
+          )}
         </div>
       </main>
 
-      {/* 3. COLUMNA DERECHA: Favoritos (320px) */}
-      <aside className="w-80 hidden lg:block p-4 overflow-y-auto">
-        <div className="bg-[#1a2235] rounded-xl p-4 border border-gray-800">
-          <h3 className="text-[#00ff87] text-xs font-bold uppercase mb-4">Mis Ligas Favoritas ⭐</h3>
-          <p className="text-gray-500 text-[10px]">Selecciona ligas en el menú lateral para verlas aquí.</p>
+      {/* COLUMNA 3: FAVORITOS (ANCHO FIJO 320px) */}
+      <aside className="w-[320px] p-4 overflow-y-auto bg-[#0f1423] shrink-0 hidden lg:block">
+        <div className="bg-[#1a2235] rounded-xl p-6 border border-gray-800">
+          <h3 className="text-[#00ff87] text-xs font-black uppercase mb-4">Favoritos ⭐</h3>
+          <p className="text-gray-400 text-[10px]">Tus ligas favoritas aparecerán aquí.</p>
         </div>
       </aside>
+
     </div>
   );
 }
