@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { AppProvider } from "./context/AppContext"; // Importamos el cerebro de la app
+import { AppProvider } from "./context/AppContext";
+import Navbar from './components/Navbar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,11 +19,19 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} bg-[#0a0e1a] text-white antialiased`}>
-        {/* Aquí está la clave: AppProvider envuelve a {children}.
-            Sin esto, la opción de cambiar idioma o el registro de usuario no funcionaría.
-        */}
         <AppProvider>
-          {children}
+          {/* Contenedor principal que ocupa el 100% de la altura de la pantalla */}
+          <div className="flex flex-col h-screen w-full overflow-hidden">
+            
+            {/* Barra de navegación superior */}
+            <Navbar />
+
+            {/* Contenedor del contenido (aquí es donde vivirán las 3 columnas) */}
+            <div className="flex-1 w-full overflow-hidden">
+              {children}
+            </div>
+            
+          </div>
         </AppProvider>
       </body>
     </html>
