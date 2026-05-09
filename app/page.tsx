@@ -29,10 +29,13 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-[#0a0e1a] overflow-hidden">
-      {/* 1. COLUMNA IZQUIERDA: Menu de Ligas y Países */}
-      <Sidebar />
+      
+      {/* 1. COLUMNA IZQUIERDA: Sidebar fijo (250px aprox) */}
+      <aside className="w-64 border-r border-gray-800 overflow-y-auto hidden md:block">
+        <Sidebar />
+      </aside>
 
-      {/* 2. COLUMNA CENTRAL: Resultados */}
+      {/* 2. COLUMNA CENTRAL: Resultados (Toma el resto del espacio) */}
       <main className="flex-1 overflow-y-auto border-r border-gray-800">
         <header className="sticky top-0 z-10 bg-[#0a0e1a]/80 backdrop-blur-md p-4 border-b border-gray-800">
           <div className="flex gap-6">
@@ -69,11 +72,11 @@ export default function Home() {
             ))
           ) : (
             <p className="text-center text-gray-500 mt-10">No hay partidos en este momento.</p>
-          )}
+          ) /* */}
         </div>
       </main>
 
-      {/* 3. COLUMNA DERECHA: Favoritos y Cuotas */}
+      {/* 3. COLUMNA DERECHA: Favoritos (320px) */}
       <aside className="w-80 hidden lg:block p-4 overflow-y-auto">
         <div className="bg-[#1a2235] rounded-xl p-4 border border-gray-800">
           <h3 className="text-[#00ff87] text-xs font-bold uppercase mb-4">Mis Ligas Favoritas ⭐</h3>
