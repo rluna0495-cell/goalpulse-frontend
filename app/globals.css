@@ -2,25 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #0a0e1a;
-  --foreground: #ffffff;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  overflow: hidden; /* Evita scroll doble */
-}
-
-/* Forzar que el contenedor de Next.js ocupe todo el ancho */
-#__next, body, html {
-  height: 100%;
-  width: 100%;
-}
+body { background: #05070a; color: white; overflow: hidden; }
